@@ -10,13 +10,13 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/iirose-plugins/koishi-plugin-iirose-follow/issues"
+    "url": "https://github.com/iirose-plugins/iirose-plugins/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/iirose-plugins/koishi-plugin-iirose-follow.git"
+    "url": "git+https://github.com/iirose-plugins/iirose-plugins.git"
   },
-  "homepage": "https://github.com/iirose-plugins/koishi-plugin-iirose-follow",
+  "homepage": "https://github.com/iirose-plugins/iirose-plugins/tree/main/packages/iirose-follow",
   "keywords": [
     "chatbot",
     "koishi",

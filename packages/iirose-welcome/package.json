@@ -10,13 +10,13 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/iirose-plugins/koishi-plugin-iirose-welcome/issues"
+    "url": "https://github.com/iirose-plugins/iirose-plugins/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/iirose-plugins/koishi-plugin-iirose-welcome.git"
+    "url": "git+https://github.com/iirose-plugins/iirose-plugins.git"
   },
-  "homepage": "https://github.com/iirose-plugins/koishi-plugin-iirose-welcome",
+  "homepage": "https://github.com/iirose-plugins/iirose-plugins/tree/main/packages/iirose-welcome",
   "keywords": [
     "chatbot",
     "koishi",

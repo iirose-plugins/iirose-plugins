@@ -10,13 +10,13 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/iirose-plugins/koishi-plugin-word-core-iirose-event-trigger/issues/new/choose"
+    "url": "https://github.com/iirose-plugins/iirose-plugins/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/iirose-plugins/koishi-plugin-word-core-iirose-event-trigger.git"
+    "url": "git+https://github.com/iirose-plugins/iirose-plugins.git"
   },
-  "homepage": "https://github.com/iirose-plugins/koishi-plugin-word-core-iirose-event-trigger",
+  "homepage": "https://github.com/iirose-plugins/iirose-plugins/tree/main/packages/word-core-iirose-event-trigger",
   "keywords": [
     "chatbot",
     "koishi",

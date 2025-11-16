@@ -15,10 +15,14 @@
     "plugin",
     "iirose-stock-monitor"
   ],
+  "bugs": {
+    "url": "https://github.com/iirose-plugins/iirose-plugins/issues"
+  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/BSTluo/iirose-stock-monitor.git"
+    "url": "git+https://github.com/iirose-plugins/iirose-plugins.git"
   },
+  "homepage": "https://github.com/iirose-plugins/iirose-plugins/tree/main/packages/iirose-stock-monitor",
   "koishi": {
     "service": {
       "required": [

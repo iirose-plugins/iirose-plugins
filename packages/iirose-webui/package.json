@@ -12,13 +12,13 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/iirose-plugins/koishi-plugin-iirose-webui/issues/new/choose"
+    "url": "https://github.com/iirose-plugins/iirose-plugins/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/iirose-plugins/koishi-plugin-iirose-webui.git"
+    "url": "git+https://github.com/iirose-plugins/iirose-plugins.git"
   },
-  "homepage": "https://github.com/iirose-plugins/koishi-plugin-iirose-webui",
+  "homepage": "https://github.com/iirose-plugins/iirose-plugins/tree/main/packages/iirose-webui",
   "keywords": [
     "chatbot",
     "koishi",
