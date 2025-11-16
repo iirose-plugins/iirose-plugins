@@ -1,0 +1,12 @@
+* text=auto
+
+*.png -text
+*.jpg -text
+*.ico -text
+*.gif -text
+*.webp -text
+
+* linguist-vendored
+packages/*/lib/** -linguist-vendored
+packages/*/src/** -linguist-vendored
+yarn-*.cjs linguist-vendored
