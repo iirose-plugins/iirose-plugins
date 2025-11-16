@@ -1,0 +1,29 @@
+{
+  "name": "koishi-plugin-iirose-subscribe",
+  "description": "适用于的[IIROSE蔷薇花园](https://iirose.com/)的订阅房间",
+  "version": "0.1.1",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/iirose-plugins/koishi-plugin-iirose-subscribe/issues/new/choose"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iirose-plugins/koishi-plugin-iirose-subscribe.git"
+  },
+  "homepage": "https://github.com/iirose-plugins/koishi-plugin-iirose-subscribe",
+  "keywords": [
+    "chatbot",
+    "koishi",
+    "plugin",
+    "iirose-subscribe"
+  ],
+  "peerDependencies": {
+    "koishi": "^4.18.7"
+  }
+}

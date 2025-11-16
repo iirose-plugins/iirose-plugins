@@ -1,0 +1,29 @@
+{
+  "name": "koishi-plugin-iirose-self-cut",
+  "description": "IIROSE-[蔷薇花园](https://iirose.com/)切除媒体插件",
+  "version": "0.1.0",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/iirose-plugins/koishi-plugin-iirose-self-cut/issues/new/choose"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iirose-plugins/koishi-plugin-iirose-self-cut.git"
+  },
+  "homepage": "https://github.com/iirose-plugins/koishi-plugin-iirose-self-cut",
+  "keywords": [
+    "chatbot",
+    "koishi",
+    "plugin",
+    "iirose-self-cut"
+  ],
+  "peerDependencies": {
+    "koishi": "^4.18.7"
+  }
+}

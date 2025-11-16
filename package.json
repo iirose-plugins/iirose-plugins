@@ -1,0 +1,14 @@
+{
+  "name": "@root/iirose-plugins",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "packages/*/packages/*",
+    "packages/*/external/*"
+  ],
+  "scripts": {
+    "postinstall": "node scripts/patch-tsconfig.js"
+  },
+  "license": "MIT"
+}
