@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-iirose-self-cut",
   "description": "IIROSE-[蔷薇花园](https://iirose.com/)切除媒体插件",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [

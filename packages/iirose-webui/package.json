@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-iirose-webui",
   "description": "[IIROSE蔷薇花园](https://iirose.com/)聊天室Koishi-Webui",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
