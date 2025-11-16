@@ -1,2 +1,3 @@
-# iirose-plugins
-iirose-plugins
+# IIROSE Plugins
+
+IIROSE Plugins for Koishi.
