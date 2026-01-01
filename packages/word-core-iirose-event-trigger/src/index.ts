@@ -18,7 +18,6 @@ export function apply(ctx: Context)
     {
 
       if (!ctx.word) { return; }
-      if (!session.content) { return; }
       if (session.userId == session.bot.selfId) { return; }
 
       const forkSession = session;
