@@ -88,25 +88,59 @@ export const Config: Schema<Config> = Schema.intersect([
 
 export function apply(ctx: Context, config: Config)
 {
-  // 用于跟踪用户事件时间戳的 Map
+  // 用于跟踪每个用户每种事件类型的时间戳的 Map
+  // 键格式: `${userId}:${eventType}`，其中 eventType 为 'add' | 'remove' | 'refresh'
   const userEventTimestamps = new Map<string, number>();
 
-  // 检查用户是否处于冷却时间内
-  const isRateLimited = (userId: string): boolean =>
+  // 用于存储每个记录的自动清理定时器
+  const cleanupTimers = new Map<string, NodeJS.Timeout>();
+
+  // 插件卸载时清理所有定时器
+  ctx.on('dispose', () =>
+  {
+    for (const timer of cleanupTimers.values())
+    {
+      clearTimeout(timer);
+    }
+    cleanupTimers.clear();
+    userEventTimestamps.clear();
+  });
+
+  // 检查用户特定事件类型是否处于冷却时间内
+  const isRateLimited = (userId: string, eventType: 'add' | 'remove' | 'refresh'): boolean =>
   {
     // 如果冷却时间设置为0或更小，则禁用此功能
     if (config.cooldown <= 0) return false;
-    const now = Date.now();
-    const lastEventTime = userEventTimestamps.get(userId);
 
-    // 检查自上次事件以来是否经过了足够的时间
+    const now = Date.now();
+    const key = `${userId}:${eventType}`;
+    const lastEventTime = userEventTimestamps.get(key);
+
+    // 检查自上次该类型事件以来是否经过了足够的时间
     if (lastEventTime && (now - lastEventTime) < config.cooldown * 1000)
     {
       return true; // 处于冷却中，阻止事件
     }
 
-    // 更新当前事件的时间戳
-    userEventTimestamps.set(userId, now);
+    // 更新当前事件类型的时间戳
+    userEventTimestamps.set(key, now);
+
+    // 清除该键的旧定时器（如果存在）
+    const oldTimer = cleanupTimers.get(key);
+    if (oldTimer)
+    {
+      clearTimeout(oldTimer);
+    }
+
+    // 设置新的定时器，在冷却时间后自动删除记录
+    const newTimer = setTimeout(() =>
+    {
+      userEventTimestamps.delete(key);
+      cleanupTimers.delete(key);
+    }, config.cooldown * 1000);
+
+    cleanupTimers.set(key, newTimer);
+
     return false; // 不在冷却中，允许事件
   };
 
@@ -236,7 +270,7 @@ export function apply(ctx: Context, config: Config)
     ctx.platform("iirose").on('guild-member-added', async (session) =>
     {
       if (!config.enableAdd) return; // 检查是否开启了进群欢迎
-      if (isRateLimited(session.userId)) return;
+      if (isRateLimited(session.userId, 'add')) return;
       if (config.onlyIIROSE && session.platform !== 'iirose') return;
       if (session.userId === session.selfId) return;
 
@@ -272,7 +306,7 @@ export function apply(ctx: Context, config: Config)
     ctx.platform("iirose").on('guild-member-removed', async (session: Session) =>
     {
       if (!config.enableRemove) return; // 检查是否开启了退群欢送
-      if (isRateLimited(session.userId)) return;
+      if (isRateLimited(session.userId, 'remove')) return;
       if (config.onlyIIROSE && session.platform !== 'iirose') return;
       if (session.userId === session.selfId) return;
 
@@ -296,7 +330,7 @@ export function apply(ctx: Context, config: Config)
     ctx.platform("iirose").on('iirose/guild-member-refresh' as any, async (session: Session) =>
     {
       if (!config.enableRefresh) return; // 检查是否开启了刷新提示
-      if (isRateLimited(session.userId)) return; // 刷新也走冷却
+      if (isRateLimited(session.userId, 'refresh')) return; // 刷新也走冷却
       if (config.onlyIIROSE && session.platform !== 'iirose') return;
 
       // 检查用户个人开关
