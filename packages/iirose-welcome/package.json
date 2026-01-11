@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-iirose-welcome",
   "description": "适用于的[IIROSE蔷薇花园](https://iirose.com/)的可配置进/退房间(群)欢迎插件！(应该也支持其他平台？)",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
