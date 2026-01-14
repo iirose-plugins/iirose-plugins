@@ -43,6 +43,7 @@ declare module 'koishi' {
 export interface Config
 {
   botTable?: { botId: string; channelId: string; }[];
+  sendTable?: { feature: string; enable: boolean; }[];
   enableSuggestion?: boolean;
   sendTextAfterCrash?: boolean;
   sendChartAfterCrash?: boolean;
@@ -62,12 +63,30 @@ export const Config: Schema<Config> = Schema.intersect([
     })).role('table').default([{ botId: "", channelId: "" }]).description("推送列表<br>填入`机器人ID`和对应的`频道ID`<br>推荐使用`inspect`指令查看信息后 填入此配置项"),
   }).description("推送列表"),
 
+  // Schema.object({
+  //   enableSuggestion: Schema.boolean().default(true).description('推送`买进/卖出`建议。<br>即下方的`推荐策略`配置项。').deprecated(),
+  //   sendTextAfterCrash: Schema.boolean().default(true).description('在股票崩盘后 推送文字播报'),
+  //   sendChartAfterCrash: Schema.boolean().default(true).description('在股票崩盘后 推送股票图'),
+  //   enableTotalMoney: Schema.boolean().default(true).description('推送报表时，显示总金').deprecated(),
+  // }).description("文字播报设定"),
+
   Schema.object({
-    enableSuggestion: Schema.boolean().default(true).description('推送`买进/卖出`建议。<br>即下方的`推荐策略`配置项。'),
+    sendTable: Schema.array(Schema.object({
+      feature: Schema.union([
+        Schema.const('header').description('标题'),
+        Schema.const('risenfall').description('涨跌趋势'),
+        Schema.const('current').description('当前股价'),
+        Schema.const('totalstock').description('总股'),
+        Schema.const('totalmoney').description('总金'),
+        Schema.const('suggestion').description('推荐策略'),
+      ]).description('功能'),
+      enable: Schema.boolean().description('是否启用'),
+    })).role('table').default([{ feature: "header", enable: true },{ feature: "risenfall", enable: true },{ feature: "current", enable: true },{ feature: "totalstock", enable: true },{ feature: "totalmoney", enable: true },{ feature: "suggestion", enable: true }])
+    .description("文字报表功能列表<br>可依据自身喜好调整各功能的相对位置"),
     sendTextAfterCrash: Schema.boolean().default(true).description('在股票崩盘后 推送文字播报'),
     sendChartAfterCrash: Schema.boolean().default(true).description('在股票崩盘后 推送股票图'),
-    enableTotalMoney: Schema.boolean().default(true).description('推送报表时，显示总金'),
   }).description("文字播报设定"),
+
   Schema.union([
     Schema.object({
       enableSuggestion: Schema.const(true),
@@ -75,10 +94,10 @@ export const Config: Schema<Config> = Schema.intersect([
       sellStrategies: Schema.tuple([Schema.number().default(1), Schema.number().default(999)]).description('价格区间卖出推荐策略 (下限/上限)'),
       buyComboStrategies: Schema.number().default(3).description('连续下跌买入推荐策略 (次数)'),
       sellComboStrategies: Schema.number().default(3).description('连续上涨买入推荐策略 (次数)'),
-    }).description("推荐策略"),
-    Schema.object({
-      enableSuggestion: Schema.const(false).required(),
-    }),
+    }).description("推荐策略设定"),
+    // Schema.object({
+    //  enableSuggestion: Schema.const(false).required(),
+    // }),
   ])
 ]);
 
@@ -298,6 +317,10 @@ export function apply(ctx: Context, config: Config)
       const width = (echartsOption.series[0].data.length * 100 + 100) < 1000 ? 1000 : (echartsOption.series[0].data.length * 100 + 100);
       const chart = await ctx.echarts.createChart(width, 700, echartsOption);
 
+
+      if (t('chartHeader') == ''){
+        return chart
+      }
       return t('chartHeader') + chart;
     });
 
@@ -313,7 +336,7 @@ export function apply(ctx: Context, config: Config)
     }
     if (nowData.totalMoney === data.totalMoney) return;
 
-    const message: string[] = [t('reportTitle')];
+    const message: string[] = [];
 
     // 崩盘处理
     if (data.unitPrice === 1 && data.totalStock === 1000)
@@ -369,65 +392,72 @@ export function apply(ctx: Context, config: Config)
     const priceChange = data.unitPrice - nowData.unitPrice;
     const priceChangePercent = (priceChange / nowData.unitPrice) * 100;
 
-    // 涨跌趋势播报
-    if (priceChange > 0)
-    {
-      status.up++;
-      status.down = 0;
-      const riseText = status.up === 1 ? t('rising') : t('riseCount', { 0: status.up });
-      const riseDetailText = t('riseDetails', { 0: priceChange.toFixed(4), 1: priceChangePercent.toFixed(2) });
-      message.push(riseText, riseDetailText);
-    } else if (priceChange < 0)
-    {
-      status.down++;
-      status.up = 0;
-      const fallText = status.down === 1 ? t('falling') : t('fallCount', { 0: status.down });
-      const fallDetailText = t('fallDetails', { 0: (-priceChange).toFixed(4), 1: (-priceChangePercent).toFixed(2) });
-      message.push(fallText, fallDetailText);
+    for (const item of config.sendTable || []) {
+      console.log(`功能: ${item.feature}, 启用: ${item.enable}`);
+
+      if (!item.enable) {return}
+      else if (item.feature == 'header'){
+        message.push(t('reportTitle'))
+      }
+      else if (item.feature == 'risenfall'){
+        // 涨跌趋势播报
+        if (priceChange > 0)
+        {
+          status.up++;
+          status.down = 0;
+          const riseText = status.up === 1 ? t('rising') : t('riseCount', { 0: status.up });
+          const riseDetailText = t('riseDetails', { 0: priceChange.toFixed(4), 1: priceChangePercent.toFixed(2) });
+          message.push(riseText, riseDetailText);
+        } else if (priceChange < 0)
+        {
+          status.down++;
+          status.up = 0;
+          const fallText = status.down === 1 ? t('falling') : t('fallCount', { 0: status.down });
+          const fallDetailText = t('fallDetails', { 0: (-priceChange).toFixed(4), 1: (-priceChangePercent).toFixed(2) });
+          message.push(fallText, fallDetailText);
+        }
+      }
+      else if (item.feature == 'current'){
+        const priceChangeFormatted = formatChange(priceChange, 4, '钞');
+        const pricePercentFormatted = formatChange(priceChangePercent, 2, '%');
+        const buyabilityInfo = data.unitPrice <= 0.1 ? t('unbuyable') : '';
+        message.push(t('priceReport', { 0: data.unitPrice, 1: priceChangeFormatted, 2: pricePercentFormatted, 3: buyabilityInfo }));
+      }
+      else if (item.feature == 'totalstock'){
+        const volumeChange = data.totalStock - nowData.totalStock;
+        const volumeChangePercent = (volumeChange / nowData.totalStock) * 100;
+        const volumeChangeFormatted = formatChange(volumeChange, 0, '股');
+        const volumePercentFormatted = formatChange(volumeChangePercent, 2, '%');
+        message.push(t('volumeReport', { 0: data.totalStock, 1: volumeChangeFormatted, 2: volumePercentFormatted }));
+      }
+      else if (item.feature == 'totalmoney'){
+        const moneyChange = data.totalMoney - nowData.totalMoney;
+        const moneyChangePercent = (moneyChange / nowData.totalMoney) * 100;
+        const moneyChangeFormatted = formatChange(moneyChange, 0, '钞');
+        const moneyPercentFormatted = formatChange(moneyChangePercent, 2, '%');
+        message.push(t('moneyReport', { 0: data.totalMoney, 1: moneyChangeFormatted, 2: moneyPercentFormatted }));
+      }
+      else if (item.feature == 'suggestion'){
+        const { buyStrategies, sellStrategies, buyComboStrategies, sellComboStrategies } = config;
+        if (buyStrategies && data.unitPrice >= buyStrategies[0] && data.unitPrice <= buyStrategies[1] && data.unitPrice >= 0.1)
+        {
+          message.push(t('buySuggestionRange', { 0: data.unitPrice, 1: buyStrategies[0], 2: buyStrategies[1] }));
+        }
+        if (sellStrategies && data.unitPrice >= sellStrategies[0] && data.unitPrice <= sellStrategies[1])
+        {
+          message.push(t('sellSuggestionRange', { 0: data.unitPrice, 1: sellStrategies[0], 2: sellStrategies[1] }));
+        }
+        if (buyComboStrategies && status.down >= buyComboStrategies && data.unitPrice >= 0.1)
+        {
+          message.push(t('buySuggestionCombo', { 0: status.down }));
+        }
+        if (sellComboStrategies && status.up >= sellComboStrategies)
+        {
+          message.push(t('sellSuggestionCombo', { 0: status.up }));
+        }
+      }
     }
 
-    // 核心数据播报
-    const priceChangeFormatted = formatChange(priceChange, 4, '钞');
-    const pricePercentFormatted = formatChange(priceChangePercent, 2, '%');
-    const buyabilityInfo = data.unitPrice <= 0.1 ? t('unbuyable') : '';
-    message.push(t('priceReport', { 0: data.unitPrice, 1: priceChangeFormatted, 2: pricePercentFormatted, 3: buyabilityInfo }));
-
-    const volumeChange = data.totalStock - nowData.totalStock;
-    const volumeChangePercent = (volumeChange / nowData.totalStock) * 100;
-    const volumeChangeFormatted = formatChange(volumeChange, 0, '股');
-    const volumePercentFormatted = formatChange(volumeChangePercent, 2, '%');
-    message.push(t('volumeReport', { 0: data.totalStock, 1: volumeChangeFormatted, 2: volumePercentFormatted }));
-
-    if (config.enableTotalMoney)
-    {
-      const moneyChange = data.totalMoney - nowData.totalMoney;
-      const moneyChangePercent = (moneyChange / nowData.totalMoney) * 100;
-      const moneyChangeFormatted = formatChange(moneyChange, 0, '钞');
-      const moneyPercentFormatted = formatChange(moneyChangePercent, 2, '%');
-      message.push(t('moneyReport', { 0: data.totalMoney, 1: moneyChangeFormatted, 2: moneyPercentFormatted }));
-    }
-
-    // 策略建议播报
-    if (config.enableSuggestion)
-    {
-      const { buyStrategies, sellStrategies, buyComboStrategies, sellComboStrategies } = config;
-      if (buyStrategies && data.unitPrice >= buyStrategies[0] && data.unitPrice <= buyStrategies[1] && data.unitPrice >= 0.1)
-      {
-        message.push(t('buySuggestionRange', { 0: data.unitPrice, 1: buyStrategies[0], 2: buyStrategies[1] }));
-      }
-      if (sellStrategies && data.unitPrice >= sellStrategies[0] && data.unitPrice <= sellStrategies[1])
-      {
-        message.push(t('sellSuggestionRange', { 0: data.unitPrice, 1: sellStrategies[0], 2: sellStrategies[1] }));
-      }
-      if (buyComboStrategies && status.down >= buyComboStrategies && data.unitPrice >= 0.1)
-      {
-        message.push(t('buySuggestionCombo', { 0: status.down }));
-      }
-      if (sellComboStrategies && status.up >= sellComboStrategies)
-      {
-        message.push(t('sellSuggestionCombo', { 0: status.up }));
-      }
-    }
     // #endregion
 
     stockState.nowData = data;
