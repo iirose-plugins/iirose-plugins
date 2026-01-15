@@ -318,7 +318,7 @@ export function apply(ctx: Context, config: Config)
       const chart = await ctx.echarts.createChart(width, 700, echartsOption);
 
 
-      if (t('chartHeader') == ''){
+      if (t('chartHeader') == ' '){
         return chart
       }
       return t('chartHeader') + chart;
@@ -393,7 +393,7 @@ export function apply(ctx: Context, config: Config)
     const priceChangePercent = (priceChange / nowData.unitPrice) * 100;
 
     for (const item of config.sendTable || []) {
-      console.log(`功能: ${item.feature}, 启用: ${item.enable}`);
+      // console.log(`功能: ${item.feature}, 启用: ${item.enable}`);
 
       if (!item.enable) {return}
       else if (item.feature == 'header'){
