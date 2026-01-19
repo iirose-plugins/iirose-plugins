@@ -311,7 +311,7 @@ export function apply(ctx: Context, config: Config)
         return t('noHistory');
       }
 
-      echartsOption.series[0].data = getMiddleRange(stockState.history.price, options.min, options.max);
+      echartsOption.series[0].data = stockState.history.price, options.min, options.max;
       (echartsOption.xAxis as any).data = getMiddleRange(stockState.history.time, options.min, options.max);
 
       const width = (echartsOption.series[0].data.length * 100 + 100) < 1000 ? 1000 : (echartsOption.series[0].data.length * 100 + 100);
@@ -367,8 +367,13 @@ export function apply(ctx: Context, config: Config)
             label: { show: true, position: 'top' }, markLine: { data: [{ type: 'average', name: 'Avg' }] }
           }]
         };
+
+        echartsOption.series[0].data = stockState.history.price;
+        (echartsOption.xAxis as any).data = stockState.history.time;
+
         const width = (history.price.length * 100 + 100) < 1000 ? 1000 : (history.price.length * 100 + 100);
         const chart = await ctx.echarts.createChart(width, 700, echartsOption);
+
         await sendMessage(chart);
       }
 
@@ -395,7 +400,7 @@ export function apply(ctx: Context, config: Config)
     for (const item of config.sendTable || []) {
       // console.log(`功能: ${item.feature}, 启用: ${item.enable}`);
 
-      if (!item.enable) {return}
+      if (!item.enable) {continue}
       else if (item.feature == 'header'){
         message.push(t('reportTitle'))
       }
