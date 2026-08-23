@@ -126,6 +126,11 @@ export function apply(ctx: Context, config: Config)
 
   ctx.on('iirose/guild-member-switchRoom' as any, async (session: Session, data) =>
   {
+    if (data.uid === session.selfId || data.uid === session.bot.selfId)
+    {
+      return;
+    }
+
     const userData = await ctx.database.get('iirose_follow', data.uid);
     if (userData.length <= 0 || !userData[0].status)
     {
@@ -139,11 +144,11 @@ export function apply(ctx: Context, config: Config)
       return;
     }
     logger.info(`跟随 ${session.username} 跳转到房间: ${data.targetRoom}`);
-    await session.bot.internal.moveRoom({ roomId: data.targetRoom });
+    await session.bot.internal.moveRoom(data.targetRoom);
     return;
   });
 
   // ctx.once('iirose/selfMove', (session, data) => {
-  //   session.bot.internal.moveRoom({ roomId: data.id });
+  //   session.bot.internal.moveRoom(data.id);
   // });
 }
